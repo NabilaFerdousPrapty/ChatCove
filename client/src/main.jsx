@@ -2,21 +2,23 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import AuthProvider from "./Providers/AuthProvider.jsx";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router"; 
+import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Main from "./Layouts/Main.jsx";
 import SignUpPage from "./Pages/SignUpPage.jsx";
 import LoginPage from "./Pages/LoginPage.jsx";
 import ProfilePage from "./Pages/ProfilePage.jsx";
+import UseAuth from "./hooks/UseAuth/UseAuth.jsx";
 
 const queryClient = new QueryClient();
-const user = null; // Example for testing. Replace with actual user logic.
 
-createRoot(document.getElementById("root")).render(
-  <StrictMode>
+const App = () => {
+ const { user } = UseAuth() || {};
+
+
+  return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        {/* Wrap Routes in BrowserRouter */}
         <BrowserRouter>
           <Routes>
             <Route
@@ -41,5 +43,11 @@ createRoot(document.getElementById("root")).render(
         </BrowserRouter>
       </AuthProvider>
     </QueryClientProvider>
+  );
+};
+
+createRoot(document.getElementById("root")).render(
+  <StrictMode>
+    <App />
   </StrictMode>
 );
