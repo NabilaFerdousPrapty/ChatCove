@@ -41,6 +41,7 @@ const client = new MongoClient(uri, {
 });
 const CatalogDB = client.db("ChatCove");
 const userCollections = CatalogDB.collection("Users");
+const chatCollections = CatalogDB.collection("Chats");
 
 async function run() {
     try {
@@ -158,8 +159,56 @@ app.get('/users/admin/:email', async (req, res) => {
     }
     return res.send({ admin: user.role === 'admin' });
 });
-// Track active users in a map where userId is the key and socket.id is the value
-let activeUsers = new Map();
+
+//search a user by name or email 
+app.get('/users/search/:name', async (req, res) => {
+    try {
+        const name = req.params.name;
+        const query = {
+            $or: [
+                { name: { $regex: name, $options: 'i' } },
+                { email: { $regex: name, $options: 'i' } }
+            ]
+        }
+        const results = await userCollections.find(query).toArray();
+        if (results.length === 0) {
+            return res.status(404).send({ message: 'No users found.' });
+        }
+        res.send(results);
+    } catch (error) {
+        res.status(500).send({ error: 'Internal Server Error', details: error.message });
+    }
+});
+//chat routes
+//access all chats of a user
+app.get('/chats/:email', async (req, res) => {
+    const email = req.params.email;
+    const query = { $or: [{ sender: email }, { receiver: email }] };
+    const chats = await chatCollections.find(query).toArray();
+    res.send(chats);
+});
+//access all chats between two users
+app.get('/chats/:sender/:receiver', async (req, res) => {
+    const sender = req.params.sender;
+    const receiver = req.params.receiver;
+    const query = {
+        $or: [
+            { sender: sender, receiver: receiver },
+            { sender: receiver, receiver: sender }
+        ]
+    };
+    const chats = await chatCollections.find(query).toArray();
+    res.send(chats);
+});
+//send a message to a user
+app.post('/chats', async (req, res) => {
+    const newChat = req.body;
+    const result = await chatCollections.insertOne(newChat);
+    res.send(result);
+});
+
+
+
 
 // io.on("connection", (socket) => {
 //     console.log("a user connected:", socket.id);
@@ -202,9 +251,3 @@ app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
 
-// Start Socket.IO server
-// server.listen(IO_PORT, () => {
-//     console.log(`Socket.IO server is running on port ${IO_PORT}`);
-// }).on('error', (err) => {
-//     console.error('Socket.IO server error:', err);
-// });

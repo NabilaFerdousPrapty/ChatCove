@@ -1,69 +1,84 @@
-import { useEffect, useState } from "react";
-import { FaHome, FaUser, FaTicketAlt, FaCog } from "react-icons/fa";
-import io from "socket.io-client";
+import { useState } from "react";
+import UseAxiosCommon from "../hooks/UseAxiosCommon/UseAxiosCommon";
 
 const Sidebar = () => {
-//   const [activeUsers, setActiveUsers] = useState([]);
-//   const socket = io("http://localhost:3000"); 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [users, setUsers] = useState([]); // Ensure users is initialized as an empty array
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const axiosCommon=UseAxiosCommon();
 
-//   useEffect(() => {
-
-//     socket.emit("active_users");
-
-    
-//     socket.on("active_users", (users) => {
-//       setActiveUsers(users);
-//     });
-
-//     // Cleanup the socket connection when the component unmounts
-//     return () => {
-//       socket.disconnect();
-//     };
-//   }, []);
+  // Handle user search
+  const handleSearch = async () => {
+    if (searchQuery.trim() === "") {
+      setUsers([]); // Clear results if search is empty
+      return;
+    }
+     axiosCommon.get(`/users/search/${searchQuery}`)
+        .then((response) => {
+            setUsers(response.data);
+            setLoading(false);
+        })
+        .catch((error) => {
+            setError(error.response?.data?.message || error.message);
+            setLoading(false);
+        });
+    setLoading(true);
+   
+  };
 
   return (
-    <aside className="flex flex-col w-64 h-screen px-4 py-8 overflow-y-auto border-r rtl:border-r-0 rtl:border-l">
+    <aside className="flex flex-col w-64 h-screen px-4 py-8 overflow-y-auto border-r rtl:border-r-0 rtl:border-l border-blue-200 border-2 rounded-3xl">
       <a href="#" className="mx-auto">
         <img
-          className="w-auto h-6 sm:h-7"
-          src="https://merakiui.com/images/full-logo.svg"
+          className="w-auto h-20 bg-gray-600 p-5 rounded-2xl"
+          src="https://i.ibb.co.com/ScVh51f/logo1-removebg-preview.png"
           alt="Logo"
         />
       </a>
 
-      <div className="flex flex-col items-center mt-6 -mx-2">
-        <img
-          className="object-cover w-24 h-24 mx-2 rounded-full"
-          src="https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80"
-          alt="avatar"
-        />
-        <h4 className="mx-2 mt-2 font-medium text-gray-800 dark:text-gray-200">
-          John Doe
-        </h4>
-        <p className="mx-2 mt-1 text-sm font-medium text-gray-600 dark:text-gray-400">
-          john@example.com
-        </p>
-      </div>
-
-      <div className="flex flex-col justify-between flex-1 mt-6">
+      <div className="flex flex-col flex-1 mt-6">
         <h5 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">
-          Active Users
+          Search Users
         </h5>
-        <ul className="space-y-2">
-          {/* {activeUsers.length > 0 ? (
-            activeUsers.map((user, index) => (
-              <li key={index} className="flex items-center space-x-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
-                <span className="text-sm text-gray-800 dark:text-gray-200">
-                  {user}
-                </span>
+
+        {/* Search Input */}
+        <input
+          type="text"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+          placeholder="Search by name or email"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleSearch(); // Trigger search on Enter key
+            }
+          }}
+        />
+
+        {/* Show loading */}
+        {loading && <div className="mt-2 text-gray-500">Loading...</div>}
+
+        {/* Show error */}
+        {error && <div className="mt-2 text-red-500">{error}</div>}
+
+        {/* Show search results */}
+        <ul className="space-y-2 mt-4" >
+          {Array.isArray(users) && users.length > 0 ? (
+            users.map((user) => (
+              <li className="my-4" key={user._id}>
+                <a
+                  href="#"
+                  className="text-blue-500 hover:text-blue-700 bg-slate-300 hover:bg-slate-400 px-3 py-2 rounded-lg"        
+                  onClick={() => alert(`Clicked on ${user.name}`)} // Handle click for user
+                >
+                  {user.name}
+                </a>
               </li>
             ))
           ) : (
-            <li className="text-gray-600 dark:text-gray-400">
-              No active users
-            </li>
-          )} */}
+            <div className="text-gray-500">No users found.</div>
+          )}
         </ul>
       </div>
     </aside>

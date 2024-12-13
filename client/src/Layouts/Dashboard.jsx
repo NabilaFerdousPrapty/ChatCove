@@ -93,6 +93,50 @@ const Dashboard = () => {
       console.error("Error updating user", error);
     }
   };
+  const exportToCSV = () => {
+    const headers = [
+      "Name",
+      "Email",
+      "Mobile No",
+      "Role",
+      "Status",
+      "Password",
+      "Photo",
+    ];
+    const rows = users.map((user) => [
+      user.name,
+      user.email,
+      user.mobileNo,
+      user.role,
+      user.status,
+      user.password,
+      user.photo,
+    ]);
+
+    // Creating a CSV string
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row) => row.join(",")),
+    ].join("\n");
+
+    // Create a Blob and download it as CSV file
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "users.csv";
+    link.click();
+  };
+
+  // Function to export users data as JSON
+  const exportToJSON = () => {
+    const blob = new Blob([JSON.stringify(users, null, 2)], {
+      type: "application/json",
+    });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "users.json";
+    link.click();
+  };
 
   const handleRestrictUser = (email) => {
     Swal.fire({
@@ -161,7 +205,7 @@ if (isAdminLoading) {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
-        <Navbar/>
+      <Navbar />
       <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
         Dashboard
       </h2>
@@ -218,6 +262,20 @@ if (isAdminLoading) {
             Add User
           </button>
         </form>
+        <div className="m-5 flex justify-center items-center gap-4">
+          <button
+            onClick={exportToCSV}
+            className="bg-blue-500 text-white px-4 py-2 rounded-lg mr-2"
+          >
+            Export as CSV
+          </button>
+          <button
+            onClick={exportToJSON}
+            className="bg-green-500 text-white px-4 py-2 rounded-lg"
+          >
+            Export as JSON
+          </button>
+        </div>
       </div>
 
       {/* Users Table */}
@@ -231,6 +289,7 @@ if (isAdminLoading) {
               <th className="px-6 py-3 text-left text-gray-700">Mobile No</th>
               <th className="px-6 py-3 text-left text-gray-700">Role</th>
               <th className="px-6 py-3 text-left text-gray-700">Status</th>
+              <th className="px-6 py-3 text-left text-gray-700">PassWord</th>
               <th className="px-6 py-3 text-left text-gray-700">Photo</th>
               <th className="px-6 py-3 text-left text-gray-700">Actions</th>
             </tr>
@@ -242,7 +301,9 @@ if (isAdminLoading) {
                 <td className="px-6 py-3">{user.email}</td>
                 <td className="px-6 py-3">{user.mobileNo}</td>
                 <td className="px-6 py-3">{user.role}</td>
+
                 <td className="px-6 py-3">{user.status}</td>
+                <td className="px-6 py-3">{user.password}</td>
                 <td className="px-6 py-3">
                   <img
                     src={user.photo}
