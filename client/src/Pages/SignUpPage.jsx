@@ -24,7 +24,7 @@ const SignUpPage = () => {
   const axiosCommon = UseAxiosCommon();
   const navigate = useNavigate();
   const onSubmit = (data) => {
-    const { email, password, name, photo, confirmPassword } = data;
+    const { email, password, name, photo, confirmPassword,mobile } = data;
     const regex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/;
     if (password !== confirmPassword) {
       Swal.fire({
@@ -55,6 +55,7 @@ const SignUpPage = () => {
             email: result.user.email,
             name: name,
             password: password,
+            mobileNo: mobile,
             photo: photo,
             role: "user",
             status: "active",
@@ -105,7 +106,8 @@ const SignUpPage = () => {
          const userData = {
            email: result.user.email,
            name: result.user.displayName,
-           password:'google login',
+           password: "google login",
+           mobileNo: "google login",
            photo: result.user.photoURL,
            role: "user",
            status: "active",
@@ -165,14 +167,23 @@ const SignUpPage = () => {
 
           <div className="flex items-center w-full max-w-3xl p-8 mx-auto lg:px-12 lg:w-[50%]">
             <div className="w-full">
-              <h1 className="text-2xl font-semibold tracking-wider  capitalize ">
-                Get your free account now.
-              </h1>
+              <div className="flex justify-center mx-auto">
+                <img
+                  className="w-auto h-16"
+                  src="https://i.ibb.co.com/ScVh51f/logo1-removebg-preview.png"
+                  alt=""
+                />
+              </div>
+              <div className="text-center mt-8">
+                <h1 className="text-2xl font-semibold tracking-wider  capitalize ">
+                  Get your free account now.
+                </h1>
 
-              <p className="mt-4 ">
-                Let’s get you all set up so you can verify your personal account
-                and begin setting up your profile.
-              </p>
+                <p className="mt-4 ">
+                  Let’s get you all set up so you can verify your personal
+                  account and begin setting up your profile.
+                </p>
+              </div>
 
               <button
                 onClick={handleGoogleLogin}
@@ -208,7 +219,7 @@ const SignUpPage = () => {
                 onSubmit={handleSubmit(onSubmit)}
                 className="grid grid-cols-1 gap-6 mt-8 md:grid-cols-2 "
               >
-                <div className="md:col-span-2">
+                <div className="">
                   <label className="block mb-2 text-sm  font-bold">Name</label>
                   <input
                     {...register("name", { required: true })}
@@ -242,6 +253,18 @@ const SignUpPage = () => {
                   />
                   {errors.email && <span>This field is required</span>}
                 </div>
+                <div>
+                  <label className="block mb-2 text-sm text-gray-600 dark:text-gray-200">
+                    Mobile Number
+                  </label>
+                  <input
+                    {...register("mobile", { required: true })}
+                    type="number"
+                    placeholder="Enter your mobile number"
+                    className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-lg dark:placeholder-gray-600  dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
+                  />
+                  {errors.mobile && <span>This field is required</span>}
+                </div>
 
                 <div>
                   <label className="block mb-2 text-sm ">Password</label>
@@ -262,34 +285,36 @@ const SignUpPage = () => {
                     {...register("confirmPassword", { required: true })}
                     type="password"
                     placeholder="Enter your password"
-                    className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400  border border-gray-200 rounded-lg dark:placeholder-gray-600  dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
+                    className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-800  border border-gray-200 rounded-lg     focus:border-blue-400  focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
                   />
                   {errors.confirmPassword && (
                     <span>This field is required</span>
                   )}
                 </div>
 
-                <button
-                  type="submit"
-                  className="flex items-center justify-between w-full px-6 py-3 text-sm tracking-wide text-white capitalize transition-colors duration-300 transform bg-blue-500 rounded-lg hover:bg-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50"
-                >
-                  <span>Sign Up</span>
-
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="w-5 h-5 rtl:-scale-x-100"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
+                <div className="md:col-span-2 ">
+                  <button
+                    type="submit"
+                    className="flex items-center justify-center w-full px-6 py-3 text-sm tracking-wide text-white capitalize transition-colors duration-300 transform bg-blue-500 rounded-lg hover:bg-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50"
                   >
-                    <path
-                      fillRule="evenodd"
-                      d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </button>
+                    <span className="text-center">Sign Up</span>
+
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="w-5 h-5 rtl:-scale-x-100"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </button>
+                </div>
               </form>
-              <div className="text-amber-600 text-center my-3">
+              <div className="text-blue-500 text-center my-3">
                 Already have an account?
               </div>
               <div className="flex  items-center justify-between mt-4 ">

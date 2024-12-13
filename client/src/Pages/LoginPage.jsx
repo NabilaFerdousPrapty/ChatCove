@@ -64,6 +64,7 @@ const LoginPage = () => {
          name: result.user.displayName,
          password: "google login",
          photo: result.user.photoURL,
+         mobileNo:'google login',
          role: "user",
          status: "active",
        };
@@ -109,18 +110,21 @@ const LoginPage = () => {
  };
   return (
     <div className="flex justify-center items-center h-screen text-[#07101b]">
-      <div className="flex w-full max-w-sm mx-auto overflow-hidden  rounded-lg shadow-lg  lg:max-w-4xl">
+      <div className="flex w-full max-w-sm mx-auto overflow-hidden  rounded-lg shadow-lg  lg:max-w-5xl">
         <div
-          className="hidden bg-cover lg:block lg:w-1/2"
+          className="hidden bg-cover lg:block lg:w-[60%]"
           style={{
-            backgroundImage:
-              "url('https://i.ibb.co/DkPMcKn/2304-i203-047-S-m004-c13-keys-locks-realistic.jpg')",
+            backgroundImage: "url('https://i.ibb.co.com/7kdykKj/login.jpg')",
           }}
         ></div>
 
-        <div className="w-full px-6 py-8 md:px-8 lg:w-1/2">
+        <div className="w-full px-6 py-8 md:px-8 lg:w-[40%]">
           <div className="flex justify-center mx-auto">
-            <img className="w-auto h-16" src="" alt="" />
+            <img
+              className="w-auto h-16"
+              src="https://i.ibb.co.com/ScVh51f/logo1-removebg-preview.png"
+              alt=""
+            />
           </div>
 
           <p className="mt-3 text-xl text-center text-[#132f50] font-bold">

@@ -1,6 +1,7 @@
 import React from 'react'
 import Sidebar from '../Components/SideBar';
 import NoChatSelected from '../Components/NoChatSelected';
+import Navbar from '../Components/Navbar';
 
 const Main = () => {
     const user = null;
@@ -11,12 +12,15 @@ const Main = () => {
           <div className="flex h-full rounded-lg overflow-hidden ">
             <Sidebar />
 
-            {!user ? <NoChatSelected /> : <ChatContainer />}
+            <div className="flex flex-col w-full h-full justify-center items-center" >
+              <Navbar/>
+              {!user ? <NoChatSelected /> : <ChatContainer />}
+            </div>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default Main
