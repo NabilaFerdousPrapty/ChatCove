@@ -208,23 +208,26 @@ app.post('/chats', async (req, res) => {
 });
 
 
+let activeUsers = []; // Array to store active users
 
-let activeUsers = [];
 io.on('connection', (socket) => {
     console.log('Socket connected:', socket.id);
 
-    // Handle user login
+    // Handle user login or re-connection
     socket.on('login', (user) => {
         const existingUser = activeUsers.find(u => u.uid === user.uid);
 
         if (!existingUser) {
+            // User is new, add to activeUsers
             activeUsers.push({ ...user, socketId: socket.id });
             console.log(`User logged in: ${user.uid}`);
         } else {
-            existingUser.socketId = socket.id; // Update socket ID if already logged in
+            // User is reconnecting, update socketId
+            existingUser.socketId = socket.id;
             console.log(`User reconnected: ${user.uid}`);
         }
 
+        // Emit active users list to all clients
         io.emit('activeUsers', activeUsers);
     });
 
@@ -237,6 +240,7 @@ io.on('connection', (socket) => {
 
     // Handle disconnection
     socket.on('disconnect', () => {
+        // Remove user from activeUsers when disconnected
         activeUsers = activeUsers.filter(user => user.socketId !== socket.id);
         io.emit('activeUsers', activeUsers);
         console.log('Socket disconnected:', socket.id);
@@ -246,22 +250,18 @@ io.on('connection', (socket) => {
     socket.on('sendMessage', async (message) => {
         const { senderId, receiverId, content } = message;
 
-        // Save message in MongoDB
+        // Save message to MongoDB
         const chatMessage = {
             senderId,
             receiverId,
             content,
             timestamp: new Date(),
         };
-        await chatCollections.insertOne(chatMessage);
 
-        // Send message to recipient
-        const recipient = activeUsers.find(user => user.uid === receiverId);
-        if (recipient) {
-            io.to(recipient.socketId).emit('receiveMessage', chatMessage);
-        }
+   
     });
 });
+
 
 server.listen(IO_PORT, () => {
     console.log(`Socket server is running on port ${IO_PORT}`);
