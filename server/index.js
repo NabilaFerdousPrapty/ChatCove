@@ -209,43 +209,63 @@ app.post('/chats', async (req, res) => {
 
 
 
+let activeUsers = [];
+io.on('connection', (socket) => {
+    console.log('Socket connected:', socket.id);
 
-// io.on("connection", (socket) => {
-//     console.log("a user connected:", socket.id);
+    // Handle user login
+    socket.on('login', (user) => {
+        const existingUser = activeUsers.find(u => u.uid === user.uid);
 
-//     // Emit the current active users list to the newly connected socket once
-//     socket.emit("active_users", Array.from(activeUsers.keys()));
+        if (!existingUser) {
+            activeUsers.push({ ...user, socketId: socket.id });
+            console.log(`User logged in: ${user.uid}`);
+        } else {
+            existingUser.socketId = socket.id; // Update socket ID if already logged in
+            console.log(`User reconnected: ${user.uid}`);
+        }
 
-//     // Handle user_connected event from frontend
-//     socket.on("user_connected", (data) => {
-//         // Check if the user is already in the active users list to avoid duplicates
-//         if (!activeUsers.has(data.userId)) {
-//             activeUsers.set(data.userId, socket.id);
+        io.emit('activeUsers', activeUsers);
+    });
 
-//             // Emit the updated list of active users to all clients
-//             io.emit("active_users", Array.from(activeUsers.keys()));
+    // Handle user logout
+    socket.on('user_logged_out', (uid) => {
+        activeUsers = activeUsers.filter(user => user.uid !== uid);
+        io.emit('activeUsers', activeUsers);
+        console.log(`User logged out: ${uid}`);
+    });
 
-//             console.log(`User ${data.userId} connected with socket ID: ${socket.id}`);
-//         } else {
-//             console.log(`User ${data.userId} already in active users`);
-//         }
-//     });
+    // Handle disconnection
+    socket.on('disconnect', () => {
+        activeUsers = activeUsers.filter(user => user.socketId !== socket.id);
+        io.emit('activeUsers', activeUsers);
+        console.log('Socket disconnected:', socket.id);
+    });
 
-//     // Handle user disconnect event
-//     socket.on("disconnect", () => {
-//         // Remove the user from active users when they disconnect
-//         activeUsers.forEach((value, key) => {
-//             if (value === socket.id) {
-//                 activeUsers.delete(key);
-//                 console.log(`User ${key} disconnected`);
-//             }
-//         });
+    // Handle message sending
+    socket.on('sendMessage', async (message) => {
+        const { senderId, receiverId, content } = message;
 
-//         // Emit the updated list of active users to all clients
-//         io.emit("active_users", Array.from(activeUsers.keys()));
-//     });
-// });
+        // Save message in MongoDB
+        const chatMessage = {
+            senderId,
+            receiverId,
+            content,
+            timestamp: new Date(),
+        };
+        await chatCollections.insertOne(chatMessage);
 
+        // Send message to recipient
+        const recipient = activeUsers.find(user => user.uid === receiverId);
+        if (recipient) {
+            io.to(recipient.socketId).emit('receiveMessage', chatMessage);
+        }
+    });
+});
+
+server.listen(IO_PORT, () => {
+    console.log(`Socket server is running on port ${IO_PORT}`);
+});
 // Start HTTP server
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
