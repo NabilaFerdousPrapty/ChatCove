@@ -2,9 +2,10 @@ import React from 'react'
 import Sidebar from '../Components/SideBar';
 import NoChatSelected from '../Components/NoChatSelected';
 import Navbar from '../Components/Navbar';
+import UseAuth from '../hooks/UseAuth/UseAuth';
 
 const Main = () => {
-    const user = null;
+  const { activeUser } = UseAuth();
   return (
     <div className="h-screen bg-slate-300 ">
       <div className="flex items-center justify-center pt-20 px-4">
@@ -14,7 +15,7 @@ const Main = () => {
 
             <div className="flex flex-col w-full h-full justify-center items-center" >
               <Navbar/>
-              {!user ? <NoChatSelected /> : <ChatContainer />}
+              {!activeUser ? <NoChatSelected /> : <ChatContainer />}
             </div>
           </div>
         </div>

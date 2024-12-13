@@ -8,12 +8,31 @@ import Main from "./Layouts/Main.jsx";
 import SignUpPage from "./Pages/SignUpPage.jsx";
 import LoginPage from "./Pages/LoginPage.jsx";
 import ProfilePage from "./Pages/ProfilePage.jsx";
-import UseAuth from "./hooks/UseAuth/UseAuth"; // Use your custom hook for accessing context
-
+import UseAuth from "./hooks/UseAuth/UseAuth"; 
+import { Comment } from "react-loader-spinner";
+import UseAdmin from "./hooks/UseAdmin/UseAdmin.jsx";
+import Dashboard from "./Layouts/Dashboard.jsx";
 const queryClient = new QueryClient();
 
 const AppRoutes = () => {
-  const { user } = UseAuth(); // Use Auth Context inside this component
+  const { user,loading } = UseAuth();
+  const [isAdmin, isAdminLoading] = UseAdmin();
+  if(loading){
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Comment
+          visible={true}
+          height="80"
+          width="80"
+          ariaLabel="comment-loading"
+          wrapperStyle={{}}
+          wrapperClass="comment-wrapper"
+          color="#fff"
+          backgroundColor="#87CEEB"
+        />
+      </div>
+    );
+  }
   return (
     <Routes>
       <Route
@@ -23,6 +42,10 @@ const AppRoutes = () => {
       <Route
         path="/signup"
         element={!user ? <SignUpPage /> : <Navigate to="/" replace />}
+      />
+      <Route
+       path="/dashboard"
+        element={(isAdmin && !isAdminLoading) ? <Dashboard /> : <Navigate to="/login" replace />}
       />
       <Route
         path="/login"
