@@ -59,28 +59,31 @@ const SignUpPage = () => {
             role: "user",
             status: "active",
           };
-          axiosCommon.post("/users", userData).then((response) => {
-            Swal.fire({
-              position: "center",
-              icon: "success",
-              title: "Account created successfully",
-              text: `Welcome ${name}`,
-              showConfirmButton: false,
-              timer: 1500,
+          axiosCommon
+            .post("/addUsers", userData)
+            .then((response) => {
+              Swal.fire({
+                position: "center",
+                icon: "success",
+                title: "Account created successfully",
+                text: `Welcome ${name}`,
+                showConfirmButton: false,
+                timer: 1500,
+              });
+              setUser(result.user);
+              navigate("/");
+              setLoading(false);
+            })
+            .catch((error) => {
+              Swal.fire({
+                position: "center",
+                icon: "error",
+                title: "Failed to save user",
+                text: error.message,
+                showConfirmButton: false,
+                timer: 1500,
+              });
             });
-            setUser(result.user);
-            navigate("/");
-            setLoading(false);
-          }).catch((error) => {
-            Swal.fire({
-              position: "center",
-              icon: "error",
-              title: "Failed to save user",
-              text: error.message,
-              showConfirmButton: false,
-              timer: 1500,
-            });
-          });
 
           
         });
@@ -109,7 +112,7 @@ const SignUpPage = () => {
          };
  
          axiosCommon
-           .post("/users", userData)
+           .post("/addUsers", userData)
            .then((response) => {
              console.log(response);
              Swal.fire({

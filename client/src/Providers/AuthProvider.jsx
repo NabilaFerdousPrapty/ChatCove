@@ -35,26 +35,15 @@ const AuthProvider = ({children}) => {
       photoURL:photo
     })
   }
-  useEffect(() => {
-    const unsubscribed = onAuthStateChanged(auth, (currentUser) => {
-        setUser(currentUser)
-        // console.log(currentUser);
+useEffect(() => {
+  const unsubscribed = onAuthStateChanged(auth, (currentUser) => {
+    console.log("Auth State Changed:", currentUser); // Debugging
+    setUser(currentUser);
+    setLoading(false);
+  });
+  return () => unsubscribed();
+}, [axiosCommon]);
 
-        if (currentUser) {
-            const userInfo = { email: currentUser?.email }
-            //get token and store it in client side
-            axiosCommon.post('/users', userInfo)
-                .then((response) => {
-                  
-                   
-                })
-        } 
-        setLoading(false)
-    })
-    return () => {
-        return unsubscribed()
-    };
-}, [axiosCommon])
 
   const authInfo = {
    user,

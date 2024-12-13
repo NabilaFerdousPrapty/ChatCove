@@ -8,38 +8,40 @@ import Main from "./Layouts/Main.jsx";
 import SignUpPage from "./Pages/SignUpPage.jsx";
 import LoginPage from "./Pages/LoginPage.jsx";
 import ProfilePage from "./Pages/ProfilePage.jsx";
-import UseAuth from "./hooks/UseAuth/UseAuth.jsx";
+import UseAuth from "./hooks/UseAuth/UseAuth"; // Use your custom hook for accessing context
 
 const queryClient = new QueryClient();
 
+const AppRoutes = () => {
+  const { user } = UseAuth(); // Use Auth Context inside this component
+  return (
+    <Routes>
+      <Route
+        path="/"
+        element={user ? <Main /> : <Navigate to="/login" replace />}
+      />
+      <Route
+        path="/signup"
+        element={!user ? <SignUpPage /> : <Navigate to="/" replace />}
+      />
+      <Route
+        path="/login"
+        element={!user ? <LoginPage /> : <Navigate to="/" replace />}
+      />
+      <Route
+        path="/profile"
+        element={user ? <ProfilePage /> : <Navigate to="/login" replace />}
+      />
+    </Routes>
+  );
+};
+
 const App = () => {
- const { user } = UseAuth() || {};
-
-
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <BrowserRouter>
-          <Routes>
-            <Route
-              path="/"
-              element={user ? <Main /> : <Navigate to="/login" replace />}
-            />
-            <Route
-              path="/signup"
-              element={!user ? <SignUpPage /> : <Navigate to="/" replace />}
-            />
-            <Route
-              path="/login"
-              element={!user ? <LoginPage /> : <Navigate to="/" replace />}
-            />
-            <Route
-              path="/profile"
-              element={
-                user ? <ProfilePage /> : <Navigate to="/login" replace />
-              }
-            />
-          </Routes>
+          <AppRoutes />
         </BrowserRouter>
       </AuthProvider>
     </QueryClientProvider>

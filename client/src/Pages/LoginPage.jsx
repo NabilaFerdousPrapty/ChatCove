@@ -1,9 +1,11 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router";
 
 
 import Swal from "sweetalert2";
 
 import { useForm } from "react-hook-form";
+import UseAuth from "../hooks/UseAuth/UseAuth";
+import UseAxiosCommon from "../hooks/UseAxiosCommon/UseAxiosCommon";
 const LoginPage = () => {
   const {
     user,
@@ -14,13 +16,14 @@ const LoginPage = () => {
     createUser,
     signInWithEmail,
     updateUserProfile,
-  } = useAuth();
+  } = UseAuth();
   const {
     register,
     handleSubmit,
     watch,
     formState: { errors },
   } = useForm();
+  const axiosCommon=UseAxiosCommon();
   const navigate = useNavigate();
   const onSubmit = (data) => {
     const { email, password } = data;
@@ -36,6 +39,9 @@ const LoginPage = () => {
         });
         setUser(result.user);
         navigate("/");
+        // console.log(result);
+        // console.log(user);
+        
         setLoading(false);
       })
       .catch((error) => {
@@ -63,7 +69,7 @@ const LoginPage = () => {
        };
 
        axiosCommon
-         .post("/users", userData)
+         .post("/addUsers", userData)
          .then((response) => {
            console.log(response);
            Swal.fire({
