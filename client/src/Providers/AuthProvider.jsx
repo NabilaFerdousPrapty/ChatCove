@@ -66,7 +66,7 @@ const AuthProvider = ({ children }) => {
         setUser(currentUser);
         setLoading(false);
 
-        // Connect to socket.io server and emit login event
+       
         socket.connect();
         socket.emit("login", {
           uid: currentUser.uid,

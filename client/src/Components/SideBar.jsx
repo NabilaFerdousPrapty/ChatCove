@@ -39,7 +39,7 @@ const Sidebar = ({ activeUsers, onUserClick, currentUser }) => {
       <a href="#" className="mx-auto">
         <img
           className="w-auto h-20 bg-gray-600 p-5 rounded-2xl"
-          src="https://i.ibb.co/com/ScVh51f/logo1-removebg-preview.png"
+          src="https://i.ibb.co.com/ScVh51f/logo1-removebg-preview.png"
           alt="Logo"
         />
       </a>
@@ -75,7 +75,6 @@ const Sidebar = ({ activeUsers, onUserClick, currentUser }) => {
             users.map((user) => (
               <li className="my-4" key={user._id}>
                 <a
-                  
                   className="text-blue-500 hover:text-blue-700 bg-slate-300 hover:bg-slate-400 px-3 py-2 rounded-lg"
                   onClick={() => alert(`Clicked on ${user.name}`)} // Handle click for user
                 >
@@ -96,7 +95,6 @@ const Sidebar = ({ activeUsers, onUserClick, currentUser }) => {
             filteredActiveUsers?.map((active_user) => (
               <li className="my-4" key={active_user._id}>
                 <a
-                  
                   className="text-blue-500 hover:text-blue-700 bg-slate-300 hover:bg-slate-400 px-3 py-2 rounded-lg"
                   onClick={() => onUserClick(active_user)} // Pass clicked user to onUserClick
                 >

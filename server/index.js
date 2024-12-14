@@ -207,6 +207,25 @@ app.post('/chats', async (req, res) => {
     res.send(result);
 });
 
+app.get("/chats/:userId/:receiverId", async (req, res) => {
+    const { userId, receiverId } = req.params;
+    try {
+        const messages = await chatCollections
+            .find({
+                $or: [
+                    { senderId: userId, receiverId },
+                    { senderId: receiverId, receiverId: userId },
+                ],
+            })
+            .sort({ timestamp: 1 })
+            .toArray();
+
+        res.json(messages);
+    } catch (err) {
+        console.error("Failed to fetch chat history:", err);
+        res.status(500).send("Internal Server Error");
+    }
+});
 
 let activeUsers = []; // Array to store active users
 
@@ -238,34 +257,58 @@ io.on('connection', (socket) => {
         console.log(`User logged out: ${uid}`);
     });
 
-    // Handle disconnection
-    socket.on('disconnect', () => {
-        // Remove user from activeUsers when disconnected
-        activeUsers = activeUsers.filter(user => user.socketId !== socket.id);
-        io.emit('activeUsers', activeUsers);
-        console.log('Socket disconnected:', socket.id);
-    });
+  
+  
 
     // Handle message sending
-    socket.on('sendMessage', async (message) => {
-        const { senderId, receiverId, content } = message;
+    socket.on("sendMessage", async (message) => {
+        const { sender, receiver, content, fileURL } = message;
 
-        // Save message to MongoDB
+        // Create chat message
         const chatMessage = {
-            senderId,
-            receiverId,
+            sender,
+            receiver,
             content,
+            fileURL,
             timestamp: new Date(),
         };
 
-   
-    });
-});
+        try {
+            // Save the message to MongoDB (using emails instead of IDs)
+            await chatCollections.insertOne(chatMessage);
 
+            // Get the receiver's socket ID using their email
+            const receiverSocket = activeUsers.find(user => user.email === receiver);
+
+            // If the receiver is online, send the message to their socket
+            if (receiverSocket) {
+                io.to(receiverSocket.socketId).emit("receiveMessage", chatMessage);
+            }
+
+            // Acknowledge sender with the saved message
+            socket.emit("receiveMessage", chatMessage);
+            console.log("Message sent:", message);
+        } catch (err) {
+            console.error("Error saving message:", err);
+        }
+    });
+
+
+    
+
+    // Handle socket disconnection
+    socket.on("disconnect", () => {
+        activeUsers = activeUsers.filter((user) => user.socketId !== socket.id);
+        io.emit("activeUsers", activeUsers);
+        console.log("Socket disconnected:", socket.id);
+    });
+
+});
 
 server.listen(IO_PORT, () => {
     console.log(`Socket server is running on port ${IO_PORT}`);
 });
+
 // Start HTTP server
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
